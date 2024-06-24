@@ -21,6 +21,17 @@ let quotes = JSON.parse(fs.readFileSync(path.join(__dirname, 'quotes.json'), 'ut
 
 client.once('ready', async () => {
     console.log('Bot is online!');
+    const guild = client.guilds.cache.get('1092290893807108216');
+    if (guild) {
+        const channel = guild.channels.cache.get('1092290893807108219');
+        if (channel) {
+            channel.send('because spawn has no eye for talent');
+        } else {
+            console.error('Channel not found');
+        }
+    } else {
+        console.error('Guild not found');
+    }
 });
 
 client.on('messageCreate', async message => {
@@ -46,14 +57,14 @@ client.on('messageCreate', async message => {
             await message.channel.send({ files: ['./output.png'] });
         } catch (error) {
             console.error(error);
-            message.reply('Could not fetch the user details. Please make sure the user ID is correct.');
+            message.reply('Some shit didnt work idk probably canadas fault');
         }
     }
 
     if (message.content.startsWith('!add9quote ')) {
         const quote = message.content.replace('!add9quote ', '').trim();
         if (quote.length === 0) {
-            message.reply('Please provide a valid quote.');
+            message.reply('You fucked it up put an actual quote there dumbass');
             return;
         }
 

@@ -27,7 +27,7 @@ client.once('ready', async () => {
     if (guild) {
         const channel = guild.channels.cache.get('1092290893807108219');
         if (channel) {
-            channel.send('aired, sad');
+            channel.send('upgraded pog');
         } else {
             console.error('Channel not found');
         }

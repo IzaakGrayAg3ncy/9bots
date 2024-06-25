@@ -18,6 +18,8 @@ const client = new Client({
 
 // Load quotes from file
 let quotes = JSON.parse(fs.readFileSync(path.join(__dirname, 'quotes.json'), 'utf-8')).quotes;
+// Load spellings from file
+let spellings = JSON.parse(fs.readFileSync(path.join(__dirname, 'spellings.json'), 'utf-8')).spellings;
 
 client.once('ready', async () => {
     console.log('Bot is online!');
@@ -25,7 +27,7 @@ client.once('ready', async () => {
     if (guild) {
         const channel = guild.channels.cache.get('1092290893807108219');
         if (channel) {
-            channel.send('because spawn has no eye for talent');
+            channel.send('aired, sad');
         } else {
             console.error('Channel not found');
         }
@@ -61,6 +63,25 @@ client.on('messageCreate', async message => {
         }
     }
 
+    if (message.content === '!sw1tchspellings') {
+        try {
+            const guild = message.guild;
+            if (!guild) {
+                message.reply('This command can only be used in a server.');
+                return;
+            }
+
+            // Pick a random spelling quote
+            const quote = spellings[Math.floor(Math.random() * spellings.length)];
+
+            // Send the quote as a message
+            await message.channel.send(quote);
+        } catch (error) {
+            console.error(error);
+            message.reply('Some shit didnt work idk probably canadas fault');
+        }
+    }
+
     if (message.content.startsWith('!add9quote ')) {
         const quote = message.content.replace('!add9quote ', '').trim();
         if (quote.length === 0) {
@@ -82,20 +103,79 @@ client.on('messageCreate', async message => {
 
         const collector = sentMessage.createReactionCollector({ filter, time: 21600000 }); // 6 hours in milliseconds
 
+        let quoteAdded = false;
+
         collector.on('collect', (reaction, user) => {
             if (reaction.count >= 5) {
-                quotes.push(quote);
-                fs.writeFileSync(path.join(__dirname, 'quotes.json'), JSON.stringify({ quotes }, null, 2));
-                message.channel.send('Quote added to the list!');
-                collector.stop();
+                if (!quoteAdded) {
+                    quotes.push(quote);
+                    fs.writeFileSync(path.join(__dirname, 'quotes.json'), JSON.stringify({ quotes }, null, 2));
+                    message.channel.send('Quote added to the list!');
+                    quoteAdded = true;
+                    collector.stop();
+                }
             }
         });
 
         collector.on('end', collected => {
-            if (collected.size < 4) {
+            if (!quoteAdded) {
                 message.channel.send('Quote not added. Not enough reactions.');
             }
         });
+    }
+
+    if (message.content.startsWith('!addsw1tch ')) {
+        const quote = message.content.replace('!addsw1tch ', '').trim();
+        if (quote.length === 0) {
+            message.reply('You fucked it up put an actual quote there dumbass');
+            return;
+        }
+
+        const embed = new EmbedBuilder()
+            .setColor('#ad2440')
+            .setDescription(quote)
+            .setFooter({ text: 'React with 💯. If this gets 5 💯, it will be added to the spellings list!' });
+
+        const sentMessage = await message.channel.send({ embeds: [embed] });
+        await sentMessage.react('💯');
+
+        const filter = (reaction, user) => {
+            return reaction.emoji.name === '💯' && !user.bot;
+        };
+
+        const collector = sentMessage.createReactionCollector({ filter, time: 21600000 }); // 6 hours in milliseconds
+
+        let quoteAdded = false;
+
+        collector.on('collect', (reaction, user) => {
+            if (reaction.count >= 5) {
+                if (!quoteAdded) {
+                    spellings.push(quote);
+                    fs.writeFileSync(path.join(__dirname, 'spellings.json'), JSON.stringify({ spellings }, null, 2));
+                    message.channel.send('Spelling added to the list!');
+                    quoteAdded = true;
+                    collector.stop();
+                }
+            }
+        });
+
+        collector.on('end', collected => {
+            if (!quoteAdded) {
+                message.channel.send('Spelling not added. Not enough reactions.');
+            }
+        });
+    }
+
+    if (message.author.id === '590304012457214064' && Math.random() < 0.01) {
+        try {
+            await message.react('🇭');
+            await message.react('🇦');
+            await message.react('🇹');
+            await message.react('🇪');
+            await message.react('🇷');
+        } catch (error) {
+            console.error('Failed to react with H A T E R emojis:', error);
+        }
     }
 });
 

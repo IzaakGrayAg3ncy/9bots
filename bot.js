@@ -29,7 +29,7 @@ client.once('ready', async () => {
     if (guild) {
         const channel = guild.channels.cache.get('1092290893807108219');
         if (channel) {
-            channel.send('ayo v3');
+            channel.send('.');
         } else {
             console.error('Channel not found');
         }

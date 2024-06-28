@@ -197,7 +197,7 @@ client.on('messageCreate', async message => {
         const embed = new EmbedBuilder()
             .setColor('#ad2440')
             .setDescription(quote)
-            .setFooter({ text: 'React with 🎣. If this gets 5 🎣, it will be added to the spellings list!' });
+            .setFooter({ text: 'React with 🎣. If this gets 5 🎣, it will be added to weebs list!' });
 
         const sentMessage = await message.channel.send({ embeds: [embed] });
         await sentMessage.react('🎣');
@@ -243,7 +243,7 @@ client.on('messageCreate', async message => {
                     await message.react(emoji);
                 }
             } catch (error) {
-                console.error(`Failed to react with ${emojis.join(' ')} emojis:`, error);
+                console.error(`quit u fucking suck - ${emojis.join(' ')}`, error);
             }
         }
     }    

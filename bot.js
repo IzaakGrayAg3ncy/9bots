@@ -229,17 +229,24 @@ client.on('messageCreate', async message => {
         });
     }
 
-    if (message.author.id === '590304012457214064' && Math.random() < 0.01) {
-        try {
-            await message.react('🇭');
-            await message.react('🇦');
-            await message.react('🇹');
-            await message.react('🇪');
-            await message.react('🇷');
-        } catch (error) {
-            console.error('Failed to react with H A T E R emojis:', error);
+    const reactions = {
+        '291670749041786880': ['🇩', '🇴', '🇼', '🇳', '🇧', '🇦', '🇩'],
+        '142778699324981248': ['🇱', '🇺', '🇬', '🇪', '🇷', '🇸', '🇺', '🇽'],
+        '133489640974843904': ['🇹', '🇱', '🇸', '🇺', '🇨', '🇰'],
+        '590304012457214064': ['🇭', '🇦', '🇹', '🇪', '🇷']
+    };
+    
+    for (const [userId, emojis] of Object.entries(reactions)) {
+        if (message.author.id === userId && Math.random() < 0.01) {
+            try {
+                for (const emoji of emojis) {
+                    await message.react(emoji);
+                }
+            } catch (error) {
+                console.error(`Failed to react with ${emojis.join(' ')} emojis:`, error);
+            }
         }
-    }
+    }    
 });
 
 client.login(process.env.DISCORD_TOKEN);

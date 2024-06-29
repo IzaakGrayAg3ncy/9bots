@@ -29,7 +29,7 @@ client.once('ready', async () => {
     if (guild) {
         const channel = guild.channels.cache.get('1092290893807108219');
         if (channel) {
-            channel.send('?');
+            // channel.send('...');
         } else {
             console.error('Channel not found');
         }
@@ -103,6 +103,7 @@ client.on('messageCreate', async message => {
         }
     }
 
+
     if (message.content.startsWith('!add9quote ')) {
         const quote = message.content.replace('!add9quote ', '').trim();
         if (quote.length === 0) {
@@ -125,6 +126,31 @@ client.on('messageCreate', async message => {
         const collector = sentMessage.createReactionCollector({ filter, time: 21600000 }); // 6 hours in milliseconds
     
         let quoteAdded = false;
+        let forceAdded = false;
+        let previousReactionCount = 0;
+    
+        const checkReactions = async () => {
+            try {
+                const reaction = sentMessage.reactions.cache.get('💀');
+                if (reaction) {
+                    const currentReactionCount = reaction.count;
+                    console.log('Checking reactions', { currentReactionCount, previousReactionCount });
+                    if (currentReactionCount < previousReactionCount) {
+                        quotes.push(quote);
+                        fs.writeFileSync(path.join(__dirname, 'quotes.json'), JSON.stringify({ quotes }, null, 2));
+                        message.channel.send('Quote added to the list because the reaction count decreased!');
+                        forceAdded = true;
+                        collector.stop();
+                        return;
+                    }
+                    previousReactionCount = currentReactionCount;
+                }
+            } catch (error) {
+                console.error('Error checking reactions:', error);
+            }
+        };
+    
+        const reactionCheckInterval = setInterval(checkReactions, 5000); // Check every 5 seconds
     
         collector.on('collect', (reaction, user) => {
             if (reaction.count >= 5) {
@@ -139,35 +165,33 @@ client.on('messageCreate', async message => {
         });
     
         collector.on('end', collected => {
-            if (!quoteAdded) {
+            clearInterval(reactionCheckInterval); // Clear the interval when collector ends
+            if (!quoteAdded && !forceAdded) {
                 message.channel.send('Quote not added. Not enough reactions.');
             }
         });
     
-        // Monitor message deletion or reaction removal
-        const userIdToMonitor = '590304012457214064'; // Replace with the specific user ID to monitor
+        // Monitor message deletion
+        const userIdToMonitor = '174163262596710400'; // Replace with the specific user ID to monitor
     
         const deleteListener = async (deletedMessage) => {
-            if (deletedMessage.id === sentMessage.id && deletedMessage.author.id === userIdToMonitor) {
-                quotes.push(quote);
-                fs.writeFileSync(path.join(__dirname, 'quotes.json'), JSON.stringify({ quotes }, null, 2));
-                message.channel.send('Quote added because 9dots engaged in rat behaviour');
-                client.off('messageDelete', deleteListener); // Clean up listener
-            }
-        };
-    
-        const reactionRemoveListener = async (messageReaction, user) => {
-            if (messageReaction.message.id === sentMessage.id && user.id === userIdToMonitor) {
-                quotes.push(quote);
-                fs.writeFileSync(path.join(__dirname, 'quotes.json'), JSON.stringify({ quotes }, null, 2));
-                message.channel.send('Quote added because 9dots engaged in rat behaviour');
-                client.off('messageReactionRemove', reactionRemoveListener); // Clean up listener
+            if (deletedMessage.id === sentMessage.id) {
+                if (!quoteAdded) {
+                    quotes.push(quote);
+                    fs.writeFileSync(path.join(__dirname, 'quotes.json'), JSON.stringify({ quotes }, null, 2));
+                    message.channel.send('Quote added to the list because dots deleted the message like the filthy rat he is');
+                    forceAdded = true;
+                    collector.stop();
+                    client.off('messageDelete', deleteListener); // Clean up listener
+                }
             }
         };
     
         client.on('messageDelete', deleteListener);
-        client.on('messageReactionRemove', reactionRemoveListener);
     }
+    
+    
+    
 
     if (message.content.startsWith('!addsw1tch ')) {
         const quote = message.content.replace('!addsw1tch ', '').trim();

@@ -29,7 +29,7 @@ client.once('ready', async () => {
     if (guild) {
         const channel = guild.channels.cache.get('1092290893807108219');
         if (channel) {
-            channel.send('.');
+            channel.send('?');
         } else {
             console.error('Channel not found');
         }
@@ -109,23 +109,23 @@ client.on('messageCreate', async message => {
             message.reply('You fucked it up put an actual quote there dumbass');
             return;
         }
-
+    
         const embed = new EmbedBuilder()
             .setColor('#ad2440')
             .setDescription(quote)
             .setFooter({ text: 'React with 💀. If this gets 5 skulls, it will be added to the quotes list!' });
-
+    
         const sentMessage = await message.channel.send({ embeds: [embed] });
         await sentMessage.react('💀');
-
+    
         const filter = (reaction, user) => {
             return reaction.emoji.name === '💀' && !user.bot;
         };
-
+    
         const collector = sentMessage.createReactionCollector({ filter, time: 21600000 }); // 6 hours in milliseconds
-
+    
         let quoteAdded = false;
-
+    
         collector.on('collect', (reaction, user) => {
             if (reaction.count >= 5) {
                 if (!quoteAdded) {
@@ -137,12 +137,36 @@ client.on('messageCreate', async message => {
                 }
             }
         });
-
+    
         collector.on('end', collected => {
             if (!quoteAdded) {
                 message.channel.send('Quote not added. Not enough reactions.');
             }
         });
+    
+        // Monitor message deletion or reaction removal
+        const userIdToMonitor = '590304012457214064'; // Replace with the specific user ID to monitor
+    
+        const deleteListener = async (deletedMessage) => {
+            if (deletedMessage.id === sentMessage.id && deletedMessage.author.id === userIdToMonitor) {
+                quotes.push(quote);
+                fs.writeFileSync(path.join(__dirname, 'quotes.json'), JSON.stringify({ quotes }, null, 2));
+                message.channel.send('Quote added because 9dots engaged in rat behaviour');
+                client.off('messageDelete', deleteListener); // Clean up listener
+            }
+        };
+    
+        const reactionRemoveListener = async (messageReaction, user) => {
+            if (messageReaction.message.id === sentMessage.id && user.id === userIdToMonitor) {
+                quotes.push(quote);
+                fs.writeFileSync(path.join(__dirname, 'quotes.json'), JSON.stringify({ quotes }, null, 2));
+                message.channel.send('Quote added because 9dots engaged in rat behaviour');
+                client.off('messageReactionRemove', reactionRemoveListener); // Clean up listener
+            }
+        };
+    
+        client.on('messageDelete', deleteListener);
+        client.on('messageReactionRemove', reactionRemoveListener);
     }
 
     if (message.content.startsWith('!addsw1tch ')) {
@@ -231,7 +255,7 @@ client.on('messageCreate', async message => {
 
     const reactions = {
         '291670749041786880': ['🇩', '🇴', '🇼', '🇳', '🇧', '🇦', '🇩'],
-        '142778699324981248': ['🇱', '🇺', '🇬', '🇪', '🇷', '🇸', '🇺', '🇽'],
+        '142778699324981248': ['🇱', '🇺', '🇬', '🇪', '🇷', '🇧', '🇦', '🇩'],
         '133489640974843904': ['🇹', '🇱', '🇸', '🇺', '🇨', '🇰'],
         '590304012457214064': ['🇭', '🇦', '🇹', '🇪', '🇷']
     };

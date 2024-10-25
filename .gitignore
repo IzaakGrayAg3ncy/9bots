@@ -92,3 +92,5 @@ dist/
 
 # dotenv environment variables file
 .env
+bot/output.png
+bot/data/quotes.json

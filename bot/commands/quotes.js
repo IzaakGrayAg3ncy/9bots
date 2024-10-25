@@ -36,7 +36,7 @@ const executeQuotesCommand = async (message, client) => {
         }
     }
 
-    if (message.content === '!sw1tchspellings') {
+    /*if (message.content === '!sw1tchspellings') {
         try {
             const guild = message.guild;
             if (!guild) {
@@ -53,7 +53,7 @@ const executeQuotesCommand = async (message, client) => {
             console.error(error);
             message.reply('Some shit didnt work idk probably canadas fault');
         }
-    }
+    }*/
 
     if (message.content === '!instigation') {
         try {
@@ -160,7 +160,7 @@ const executeQuotesCommand = async (message, client) => {
         client.on('messageDelete', deleteListener);
     }
     
-    if (message.content.startsWith('!addsw1tch ')) {
+    /*if (message.content.startsWith('!addsw1tch ')) {
         const quote = message.content.replace('!addsw1tch ', '').trim();
         if (quote.length === 0) {
             message.reply('You fucked it up put an actual quote there dumbass');
@@ -201,6 +201,7 @@ const executeQuotesCommand = async (message, client) => {
             }
         });
     }
+    */
 
     if (message.content.startsWith('!addinstigation ')) {
         const quote = message.content.replace('!addinstigation ', '').trim();

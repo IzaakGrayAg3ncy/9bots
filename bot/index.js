@@ -10,8 +10,6 @@ const client = new Client({
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.GuildMessageReactions
     ]
 });
 
@@ -29,5 +27,11 @@ const loadEvents = (client) => {
 };
 
 loadEvents(client);
+
+// Log when the bot is ready
+client.once('ready', () => {
+    console.log(`Logged in as ${client.user.tag}`);
+    console.log(`Bot is in ${client.guilds.cache.size} guilds`);
+});
 
 client.login(process.env.DISCORD_TOKEN);

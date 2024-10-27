@@ -1,5 +1,5 @@
 const { executeQuotesCommand } = require('../commands/quotes');
-const checkPointsCommand = require('../commands/points');
+const { checkPointsCommand, executePointsCommand } = require('../commands/points');
 const leaderboardCommand = require('../commands/leaderboard');
 
 module.exports = {
@@ -7,6 +7,7 @@ module.exports = {
     execute(message, client) {
         executeQuotesCommand(message, client);
         checkPointsCommand(message);
+        executePointsCommand(message);
         leaderboardCommand(message);
     },
 };

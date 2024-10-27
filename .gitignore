@@ -94,3 +94,5 @@ dist/
 .env
 bot/output.png
 bot/data/quotes.json
+bot/data/quotes.json
+bot/output.png

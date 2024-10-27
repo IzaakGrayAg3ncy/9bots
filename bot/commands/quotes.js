@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { EmbedBuilder } = require('discord.js');
 const createDiscordMessageImage = require('../helpers/generateMessageImage');
+const { addPoints } = require('../utils/database'); // Import the addPoints function
 
 // Load quotes from file
 let quotes = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/quotes.json'), 'utf-8')).quotes;
@@ -10,7 +11,11 @@ let spellings = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/spellin
 let instigations = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/instigations.json'), 'utf-8')).instigations;
 
 const executeQuotesCommand = async (message, client) => {
+    console.log('executeQuotesCommand called'); // Log when the function is called
+
     if (message.content === '!9quote') {
+        console.log('!9quote command detected'); // Log when the command is detected
+
         try {
             const guild = message.guild;
             if (!guild) {
@@ -25,13 +30,25 @@ const executeQuotesCommand = async (message, client) => {
             // Pick a random quote
             const quote = quotes[Math.floor(Math.random() * quotes.length)];
 
-            // Generate image
-            await createDiscordMessageImage(quote, nickname, avatarURL, './output.png');
+            // Determine if it's a golden quote
+            const roll = Math.random();
+            const isGolden = roll < 0.2; // 20% chance
 
-            // Send image in the same channel without replying to the user
+            // Log the roll number and golden status
+            console.log(`Roll: ${roll.toFixed(4)}, Golden: ${isGolden}`);
+
+            // Generate image
+            await createDiscordMessageImage(quote, nickname, avatarURL, './output.png', isGolden);
+
+            // Send image and message
+            if (isGolden) {
+                await message.channel.send("Wow, you found a super rare golden 9dots quote, you've earned 10 kittencord points! Congratulations!");
+                addPoints(message.author.id, 10); // Add 10 points to the user
+            }
+
             await message.channel.send({ files: ['./output.png'] });
         } catch (error) {
-            console.error(error);
+            console.error('Error in executeQuotesCommand:', error);
             message.reply('Some shit didnt work idk probably canadas fault');
         }
     }
@@ -246,4 +263,39 @@ const executeQuotesCommand = async (message, client) => {
     }
 };
 
-module.exports = { executeQuotesCommand };
+const executeTestGoldenCommand = async (message, client) => {
+    if (message.content === '!testgolden') {
+        try {
+            const guild = message.guild;
+            if (!guild) {
+                message.reply('This command can only be used in a server.');
+                return;
+            }
+
+            const member = await guild.members.fetch(process.env.USER_ID);
+            const nickname = member.displayName;
+            const avatarURL = member.user.displayAvatarURL({ format: 'png' });
+
+            // Pick a random quote
+            const quote = quotes[Math.floor(Math.random() * quotes.length)];
+
+            // Force golden quote
+            const isGolden = true;
+
+            // Generate image
+            await createDiscordMessageImage(quote, nickname, avatarURL, './output.png', isGolden);
+
+            // Send image and message
+            await message.channel.send("Wow, you found a super rare golden 9dots quote, you've earned 10 kittencord points! Congratulations!");
+            addPoints(message.author.id, 10); // Add 10 points to the user
+
+            await message.channel.send({ files: ['./output.png'] });
+        } catch (error) {
+            console.error(error);
+            message.reply('Some shit didnt work idk probably canadas fault');
+        }
+    }
+};
+
+// Export both functions
+module.exports = { executeQuotesCommand, executeTestGoldenCommand };

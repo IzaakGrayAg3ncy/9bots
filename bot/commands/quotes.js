@@ -32,7 +32,7 @@ const executeQuotesCommand = async (message, client) => {
 
             // Determine if it's a golden quote
             const roll = Math.random();
-            const isGolden = roll < 0.2; // 20% chance
+            const isGolden = roll < 0.02; // 2% chance
 
             // Log the roll number and golden status
             console.log(`Roll: ${roll.toFixed(4)}, Golden: ${isGolden}`);
